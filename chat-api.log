@@ -1,0 +1,270 @@
+[2025-12-22T07:50:56.073Z] Question: In the last 30 days, what percentage of attendees are Confirmed and also requested both room and air? Compare that with the previous 30 days.”
+[2025-12-22T07:50:58.306Z] ERROR: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "sql"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  }
+]
+[2025-12-22T07:50:58.307Z] STACK: ZodError: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "sql"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  }
+]
+    at POST (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\[root-of-the-server]__3240f6ac._.js:616:34)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async AppRouteRouteModule.do (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:37866)
+    at async AppRouteRouteModule.handle (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:45156)
+    at async responseGenerator (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\node_modules_next_d0453476._.js:14843:38)
+    at async AppRouteRouteModule.handleResponse (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:1:187713)
+    at async handleResponse (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\node_modules_next_d0453476._.js:14906:32)
+    at async Module.handler (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\node_modules_next_d0453476._.js:14959:13)
+    at async DevServer.renderToResponseWithComponentsImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1422:9)
+    at async DevServer.renderPageComponent (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1474:24)
+    at async DevServer.renderToResponseImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1524:32)
+    at async DevServer.pipeImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1018:25)
+    at async NextNodeServer.handleCatchallRenderRequest (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\next-server.js:395:17)
+    at async DevServer.handleRequestImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:909:17)
+    at async D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\dev\next-dev-server.js:387:20
+    at async Span.traceAsyncFn (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\trace\trace.js:157:20)
+    at async DevServer.handleRequest (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\dev\next-dev-server.js:383:24)
+    at async invokeRender (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\router-server.js:248:21)
+    at async handleRequest (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\router-server.js:447:24)
+    at async requestHandlerImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\router-server.js:496:13)
+    at async Server.requestListener (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\start-server.js:226:13)
+[2025-12-22T07:53:27.622Z] Question: Show attendees who haven't checked in yet
+[2025-12-22T07:53:28.067Z] NO JSON FOUND. Raw text: ```sql
+SELECT 
+    id, 
+    first_name, 
+    middle_name, 
+    last_name, 
+    title, 
+    company_name, 
+    attendee_type, 
+    registration_status
+FROM 
+    public.attendee
+WHERE 
+    registration_status = 'Registered'
+    AND room_status != 'Booked'
+LIMIT 50;
+```
+[2025-12-22T07:53:28.068Z] ERROR: Error: No valid JSON found in AI response. Raw: ```sql
+SELECT 
+    id, 
+    first_name, 
+    middle_name, 
+    last_name, 
+    title, 
+    company_n...
+[2025-12-22T07:53:28.069Z] STACK: Error: No valid JSON found in AI response. Raw: ```sql
+SELECT 
+    id, 
+    first_name, 
+    middle_name, 
+    last_name, 
+    title, 
+    company_n...
+    at POST (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\[root-of-the-server]__3240f6ac._.js:623:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async AppRouteRouteModule.do (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:37866)
+    at async AppRouteRouteModule.handle (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:45156)
+    at async responseGenerator (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\node_modules_next_d0453476._.js:14843:38)
+    at async AppRouteRouteModule.handleResponse (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:1:187713)
+    at async handleResponse (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\node_modules_next_d0453476._.js:14906:32)
+    at async Module.handler (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\node_modules_next_d0453476._.js:14959:13)
+    at async DevServer.renderToResponseWithComponentsImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1422:9)
+    at async DevServer.renderPageComponent (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1474:24)
+    at async DevServer.renderToResponseImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1524:32)
+    at async DevServer.pipeImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1018:25)
+    at async NextNodeServer.handleCatchallRenderRequest (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\next-server.js:395:17)
+    at async DevServer.handleRequestImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:909:17)
+    at async D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\dev\next-dev-server.js:387:20
+    at async Span.traceAsyncFn (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\trace\trace.js:157:20)
+    at async DevServer.handleRequest (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\dev\next-dev-server.js:383:24)
+    at async invokeRender (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\router-server.js:248:21)
+    at async handleRequest (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\router-server.js:447:24)
+    at async requestHandlerImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\router-server.js:496:13)
+    at async Server.requestListener (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\start-server.js:226:13)
+[2025-12-22T07:53:30.535Z] Question: List attendees with dietary restrictions
+[2025-12-22T07:53:30.968Z] NO JSON FOUND. Raw text: ```sql
+SELECT json_agg(row_to_json(t)) 
+FROM (
+  SELECT first_name, middle_name, last_name, title, company_name, attendee_type, registration_status 
+  FROM public.attendee 
+  WHERE registration_status = 'Registered' 
+  LIMIT 50
+) t;
+```
+[2025-12-22T07:53:30.969Z] ERROR: Error: No valid JSON found in AI response. Raw: ```sql
+SELECT json_agg(row_to_json(t)) 
+FROM (
+  SELECT first_name, middle_name, last_name, title, c...
+[2025-12-22T07:53:30.970Z] STACK: Error: No valid JSON found in AI response. Raw: ```sql
+SELECT json_agg(row_to_json(t)) 
+FROM (
+  SELECT first_name, middle_name, last_name, title, c...
+    at POST (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\[root-of-the-server]__3240f6ac._.js:623:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async AppRouteRouteModule.do (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:37866)
+    at async AppRouteRouteModule.handle (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:45156)
+    at async responseGenerator (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\node_modules_next_d0453476._.js:14843:38)
+    at async AppRouteRouteModule.handleResponse (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:1:187713)
+    at async handleResponse (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\node_modules_next_d0453476._.js:14906:32)
+    at async Module.handler (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\node_modules_next_d0453476._.js:14959:13)
+    at async DevServer.renderToResponseWithComponentsImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1422:9)
+    at async DevServer.renderPageComponent (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1474:24)
+    at async DevServer.renderToResponseImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1524:32)
+    at async DevServer.pipeImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1018:25)
+    at async NextNodeServer.handleCatchallRenderRequest (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\next-server.js:395:17)
+    at async DevServer.handleRequestImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:909:17)
+    at async D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\dev\next-dev-server.js:387:20
+    at async Span.traceAsyncFn (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\trace\trace.js:157:20)
+    at async DevServer.handleRequest (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\dev\next-dev-server.js:383:24)
+    at async invokeRender (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\router-server.js:248:21)
+    at async handleRequest (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\router-server.js:447:24)
+    at async requestHandlerImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\router-server.js:496:13)
+    at async Server.requestListener (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\start-server.js:226:13)
+[2025-12-22T07:53:33.106Z] Question: Show attendee registration trends over time
+[2025-12-22T07:53:34.971Z] Raw AI JSON: {
+  "confirmed_current_period": 50.00,
+  "pending_current_period": 30.00,
+  "confirmed_previous_period": 40.00,
+  "pending_previous_period": 60.00
+}
+[2025-12-22T07:53:34.976Z] ERROR: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "sql"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  }
+]
+[2025-12-22T07:53:34.977Z] STACK: ZodError: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "sql"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  }
+]
+    at POST (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\[root-of-the-server]__3240f6ac._.js:628:34)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async AppRouteRouteModule.do (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:37866)
+    at async AppRouteRouteModule.handle (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:45156)
+    at async responseGenerator (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\node_modules_next_d0453476._.js:14843:38)
+    at async AppRouteRouteModule.handleResponse (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:1:187713)
+    at async handleResponse (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\node_modules_next_d0453476._.js:14906:32)
+    at async Module.handler (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\node_modules_next_d0453476._.js:14959:13)
+    at async DevServer.renderToResponseWithComponentsImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1422:9)
+    at async DevServer.renderPageComponent (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1474:24)
+    at async DevServer.renderToResponseImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1524:32)
+    at async DevServer.pipeImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1018:25)
+    at async NextNodeServer.handleCatchallRenderRequest (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\next-server.js:395:17)
+    at async DevServer.handleRequestImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:909:17)
+    at async D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\dev\next-dev-server.js:387:20
+    at async Span.traceAsyncFn (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\trace\trace.js:157:20)
+    at async DevServer.handleRequest (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\dev\next-dev-server.js:383:24)
+    at async invokeRender (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\router-server.js:248:21)
+    at async handleRequest (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\router-server.js:447:24)
+    at async requestHandlerImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\router-server.js:496:13)
+    at async Server.requestListener (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\start-server.js:226:13)
+[2025-12-22T07:53:38.731Z] Question: Show me total attendance numbers by ticket type
+[2025-12-22T07:53:52.715Z] NO JSON FOUND. Raw text: ```sql
+SELECT 
+    COUNT(*) FILTER (WHERE registration_status = 'Registered') as total_confirmed,
+    COUNT(*) FILTER (WHERE registration_status = 'Pending') as total_pending,
+    COUNT(*) FILTER (WHERE registration_status = 'Cancelled') as total_cancelled,
+    COUNT(*) FILTER (WHERE room_status = 'Booked') as total_requested_room,
+    COUNT(*) FILTER (WHERE air_status = 'Ticketed') as total_requested_air,
+    COUNT(*) FILTER (WHERE room_status = 'Booked' AND air_status = 'Ticketed') as total_both_room_and_air
+FROM public.attendee
+LIMIT 50;
+```
+[2025-12-22T07:53:52.716Z] ERROR: Error: No valid JSON found in AI response. Raw: ```sql
+SELECT 
+    COUNT(*) FILTER (WHERE registration_status = 'Registered') as total_confirmed,
+  ...
+[2025-12-22T07:53:52.716Z] STACK: Error: No valid JSON found in AI response. Raw: ```sql
+SELECT 
+    COUNT(*) FILTER (WHERE registration_status = 'Registered') as total_confirmed,
+  ...
+    at POST (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\[root-of-the-server]__3240f6ac._.js:623:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async AppRouteRouteModule.do (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:37866)
+    at async AppRouteRouteModule.handle (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:45156)
+    at async responseGenerator (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\node_modules_next_d0453476._.js:14843:38)
+    at async AppRouteRouteModule.handleResponse (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:1:187713)
+    at async handleResponse (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\node_modules_next_d0453476._.js:14906:32)
+    at async Module.handler (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\node_modules_next_d0453476._.js:14959:13)
+    at async DevServer.renderToResponseWithComponentsImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1422:9)
+    at async DevServer.renderPageComponent (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1474:24)
+    at async DevServer.renderToResponseImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1524:32)
+    at async DevServer.pipeImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1018:25)
+    at async NextNodeServer.handleCatchallRenderRequest (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\next-server.js:395:17)
+    at async DevServer.handleRequestImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:909:17)
+    at async D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\dev\next-dev-server.js:387:20
+    at async Span.traceAsyncFn (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\trace\trace.js:157:20)
+    at async DevServer.handleRequest (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\dev\next-dev-server.js:383:24)
+    at async invokeRender (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\router-server.js:248:21)
+    at async handleRequest (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\router-server.js:447:24)
+    at async requestHandlerImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\router-server.js:496:13)
+    at async Server.requestListener (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\start-server.js:226:13)
+[2025-12-22T07:54:56.380Z] Question: who is mahatma gandhi
+[2025-12-22T07:54:57.049Z] Raw AI JSON: {
+  "error": "I'm not capable of searching the internet or accessing information outside of the provided PostgreSQL database. I can only answer questions related to the public.attendee table."
+}
+[2025-12-22T07:54:57.053Z] ERROR: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "sql"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  }
+]
+[2025-12-22T07:54:57.054Z] STACK: ZodError: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "sql"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  }
+]
+    at POST (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\[root-of-the-server]__3240f6ac._.js:628:34)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async AppRouteRouteModule.do (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:37866)
+    at async AppRouteRouteModule.handle (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:45156)
+    at async responseGenerator (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\node_modules_next_d0453476._.js:14843:38)
+    at async AppRouteRouteModule.handleResponse (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:1:187713)
+    at async handleResponse (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\node_modules_next_d0453476._.js:14906:32)
+    at async Module.handler (D:\Sathish\AIME Insights\aime-insights\.next\dev\server\chunks\node_modules_next_d0453476._.js:14959:13)
+    at async DevServer.renderToResponseWithComponentsImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1422:9)
+    at async DevServer.renderPageComponent (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1474:24)
+    at async DevServer.renderToResponseImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1524:32)
+    at async DevServer.pipeImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:1018:25)
+    at async NextNodeServer.handleCatchallRenderRequest (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\next-server.js:395:17)
+    at async DevServer.handleRequestImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\base-server.js:909:17)
+    at async D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\dev\next-dev-server.js:387:20
+    at async Span.traceAsyncFn (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\trace\trace.js:157:20)
+    at async DevServer.handleRequest (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\dev\next-dev-server.js:383:24)
+    at async invokeRender (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\router-server.js:248:21)
+    at async handleRequest (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\router-server.js:447:24)
+    at async requestHandlerImpl (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\router-server.js:496:13)
+    at async Server.requestListener (D:\Sathish\AIME Insights\aime-insights\node_modules\next\dist\server\lib\start-server.js:226:13)

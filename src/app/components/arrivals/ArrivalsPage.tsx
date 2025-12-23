@@ -21,6 +21,10 @@ export default function ArrivalsPage() {
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetchStatus, setFetchStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [showAll, setShowAll] = useState(false);
+
+  const displayedRows = showAll ? rows : rows.slice(0, 15);
+  const displayedColumns = showAll ? columns : columns.slice(0, 15);
 
   async function fetchArrivals(search?: string) {
     setLoading(true);
@@ -194,13 +198,23 @@ export default function ArrivalsPage() {
       </div>
 
       {/* Row 5: Status Summary */}
-      <div className="pb-2 text-[11px] text-[#6b7280]">
-        {loading ? "Loading..." : rows.length > 0 ? `Showing ${rows.length} of ${total}` : ""}
+      <div className="pb-2 flex items-center gap-3 text-[11px] text-[#6b7280]">
+        <span>
+          {loading ? "Loading..." : rows.length > 0 ? `Showing ${displayedRows.length} of ${total}` : ""}
+        </span>
+        {rows.length > 15 && (
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="text-[#9333ea] font-semibold hover:underline bg-[#f3e8ff] px-2 py-0.5 rounded-full"
+          >
+            {showAll ? "Show Less" : "Show More"}
+          </button>
+        )}
       </div>
 
       {/* Table Area */}
       <div className="flex-1 min-h-0 pb-4 overflow-hidden">
-        <ArrivalsTable rows={rows} columnOrder={columns} loading={loading} />
+        <ArrivalsTable rows={displayedRows} columnOrder={displayedColumns} loading={loading} />
       </div>
     </div>
   );

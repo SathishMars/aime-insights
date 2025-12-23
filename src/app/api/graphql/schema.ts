@@ -65,6 +65,7 @@ export const resolvers = {
     },
 
     arrivals: async (_: unknown, args: { q?: string; limit?: number; offset?: number }) => {
+      console.log("[GraphQL] arrivals resolver called with args:", args);
       console.time('arrivals-resolver');
       const q = (args.q || "").trim().toLowerCase();
       const limit = Math.max(1, Math.min(args.limit ?? 50, 200));
@@ -73,7 +74,10 @@ export const resolvers = {
       try {
         const { getPool } = await import("@/lib/db");
         const pool = getPool();
-        if (!pool) throw new Error("Database pool not available");
+        if (!pool) {
+          console.error("[GraphQL] Database pool not available (getPool returned null)");
+          throw new Error("Database pool not available");
+        }
 
         const where = q
           ? `
@@ -96,6 +100,7 @@ export const resolvers = {
           LIMIT $${q ? 2 : 1}
           OFFSET $${q ? 3 : 2};
         `;
+        console.log("[GraphQL] Executing data query:", dataSql.replace(/\n\s+/g, ' '), "with params:", params);
 
         const countSql = `
           SELECT COUNT(*)::int AS total

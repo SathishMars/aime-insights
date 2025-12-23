@@ -3,8 +3,11 @@
 import { useUI } from "@/lib/ui-store";
 import { suggestions } from "@/lib/data";
 import { useMemo, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import * as XLSX from "xlsx";
 
-type Msg = { id: string; role: "assistant" | "user"; text: string; ts: string };
+type Msg = { id: string; role: "assistant" | "user"; text: string; ts: string; sql?: string; data?: any[] };
 
 function nowTime() {
   const d = new Date();
@@ -24,30 +27,61 @@ export function AimePanel() {
   ]);
   const [input, setInput] = useState("");
   const endRef = useRef<HTMLDivElement | null>(null);
+  const [isTyping, setIsTyping] = useState(false);
 
   const canSend = useMemo(() => input.trim().length >= 3 && input.trim().length <= 200, [input]);
 
-  function push(role: Msg["role"], text: string) {
-    setMessages((prev) => [...prev, { id: crypto.randomUUID(), role, text, ts: nowTime() }]);
+  function push(role: Msg["role"], text: string, sql?: string, data?: any[]) {
+    setMessages((prev) => [...prev, { id: crypto.randomUUID(), role, text, ts: nowTime(), sql, data }]);
     setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
   }
 
-  function send(text: string) {
-    const q = text.trim();
-    if (q.length < 3) return;
-    push("user", q);
-    setInput("");
-    // demo response
-    setTimeout(() => push("assistant", `Got it. (Demo) I would run: "${q}"`), 300);
+  function handleExport(data: any[], filename = "aime-export.xlsx") {
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Data");
+    XLSX.writeFile(wb, filename);
   }
 
-  // Collapsed state: hide panel completely and show floating pill button (PNG)
+  async function send(text: string) {
+    const q = text.trim();
+    if (q.length < 3 || isTyping) return;
+
+    push("user", q);
+    setInput("");
+    setIsTyping(true);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question: q,
+          history: messages.map(m => ({ role: m.role, text: m.text }))
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.ok) {
+        push("assistant", data.answer, data.sql, data.rows);
+      } else {
+        push("assistant", "I'm sorry, I encountered an error while processing your request.");
+      }
+    } catch (error) {
+      console.error("Chat API error:", error);
+      push("assistant", "Sorry, I'm having trouble connecting to the service right now.");
+    } finally {
+      setIsTyping(false);
+    }
+  }
+  // ... (aimeOpen check)
   if (!aimeOpen) {
     return (
       <>
         <button
           onClick={() => setAimeOpen(true)}
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full border border-[#e5e7eb] bg-white px-4 py-3 shadow-lg"
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full border border-[#e5e7eb] bg-white px-4 py-3 shadow-lg hover:bg-gray-50 transition-colors"
         >
           <span className="text-[#7c3aed]">✦</span>
           <span className="text-[14px] font-semibold">aime</span>
@@ -102,24 +136,70 @@ export function AimePanel() {
             </button>
           </div>
 
-          <div className="mt-2 rounded-2xl border border-[#eef0f7] bg-[#fbfcff] p-2">
+          <div className="mt-4 space-y-4">
             {messages.map((m) => (
-              <div key={m.id} className={`mb-2 flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
                   className={[
-                    "max-w-[85%] rounded-2xl border px-3 py-1.5",
+                    "max-w-[95%] rounded-2xl border px-3 py-2 shadow-sm",
                     m.role === "user"
                       ? "border-[#111827] bg-[#111827] text-white"
                       : "border-[#e5e7eb] bg-white text-[#111827]",
                   ].join(" ")}
                 >
-                  <div className="mb-0.5 text-[10px] opacity-75">
+                  <div className="mb-1 text-[10px] opacity-75">
                     {m.role === "assistant" ? "aime" : "You"} · {m.ts}
                   </div>
-                  <div className="whitespace-pre-wrap text-[12px] leading-snug">{m.text}</div>
+
+                  <div className="prose prose-sm prose-slate max-w-none text-[12px] leading-snug">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        table: ({ node, ...props }) => (
+                          <div className="overflow-x-auto my-2 rounded-lg border border-gray-100">
+                            <table className="min-w-full divide-y divide-gray-200" {...props} />
+                          </div>
+                        ),
+                        th: ({ node, ...props }) => <th className="bg-gray-50 px-2 py-1.5 text-left text-[11px] font-semibold text-gray-700" {...props} />,
+                        td: ({ node, ...props }) => <td className="px-2 py-1 border-t border-gray-100 text-[11px]" {...props} />
+                      }}
+                    >
+                      {m.text}
+                    </ReactMarkdown>
+                  </div>
+
+                  {m.data && m.data.length > 1 && (
+                    <button
+                      onClick={() => handleExport(m.data!)}
+                      className="mt-2 flex items-center gap-1.5 rounded-lg border border-[#e5e7eb] bg-white px-2.5 py-1.5 text-[10px] font-medium text-[#374151] hover:bg-gray-50 transition-colors"
+                    >
+                      <span className="text-[#10b981]">⬇</span> Download Excel
+                    </button>
+                  )}
+
+                  {m.sql && (
+                    <div className="mt-2 rounded bg-black/5 p-1.5 font-mono text-[9px] text-[#4b5563]">
+                      <details>
+                        <summary className="cursor-pointer font-sans text-[10px] font-medium hover:underline">View SQL Query</summary>
+                        <div className="mt-1 whitespace-pre-wrap rounded bg-white/50 p-1 border border-black/5 line-clamp-3">{m.sql}</div>
+                      </details>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="max-w-[85%] rounded-2xl border border-[#e5e7eb] bg-white px-3 py-2 text-[#111827] shadow-sm">
+                  <div className="mb-0.5 text-[10px] opacity-75">aime · thinking...</div>
+                  <div className="flex gap-1 py-1">
+                    <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#7c3aed] [animation-delay:-0.3s]" />
+                    <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#7c3aed] [animation-delay:-0.15s]" />
+                    <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#7c3aed]" />
+                  </div>
+                </div>
+              </div>
+            )}
             <div ref={endRef} />
           </div>
         </div>
@@ -131,7 +211,7 @@ export function AimePanel() {
         </div>
         <div className="flex items-end gap-2">
           <textarea
-            className="h-[48px] w-full resize-none rounded-xl border border-[#e5e7eb] bg-white px-3 py-2 text-[12px] outline-none"
+            className="h-[48px] w-full resize-none rounded-xl border border-[#e5e7eb] bg-white px-3 py-2 text-[12px] outline-none focus:ring-1 focus:ring-[#7c3aed]"
             placeholder="Type your question..."
             value={input}
             onChange={(e) => setInput(e.target.value.slice(0, 200))}
@@ -145,10 +225,10 @@ export function AimePanel() {
           <button
             disabled={!canSend}
             onClick={() => send(input)}
-            className="h-8 w-8 rounded-full bg-[#7c3aed] text-white disabled:opacity-40"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#7c3aed] text-white shadow-sm hover:bg-[#6d28d9] disabled:opacity-40 transition-colors"
             title="Send"
           >
-            ➤
+            <span className="text-sm">➤</span>
           </button>
         </div>
       </div>

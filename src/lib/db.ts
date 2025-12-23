@@ -1,4 +1,9 @@
 const connectionString = process.env.DATABASE_URL;
+console.log("[DB] DATABASE_URL presence:", !!connectionString);
+if (connectionString) {
+    console.log("[DB] DATABASE_URL starts with:", connectionString.substring(0, 20) + "...");
+}
+
 
 // Lazy-load pg to bypass Turbopack symlink errors on Windows at build-time
 let poolInstance: any = null;
@@ -8,6 +13,7 @@ export function getPool() {
 
     try {
         const { Pool } = eval('require("pg")');
+        console.log("[DB] Initializing new pool...");
         if (!connectionString) {
             console.warn("DATABASE_URL is missing. DB operations will fail.");
             return null;
@@ -31,5 +37,18 @@ export function getPool() {
     }
 }
 
-// For compatibility with existing imports
-export const pool = null as any;
+// For compatibility with existing imports, we export a proxy that lazily initializes the pool
+export const pool = new Proxy({} as any, {
+    get(target, prop) {
+        const instance = getPool();
+        if (!instance) {
+            throw new Error("Database pool not initialized. Check DATABASE_URL.");
+        }
+        const value = instance[prop];
+        // Critical: Bind functions to the instance so 'this' works correctly (e.g. pool.query)
+        if (typeof value === 'function') {
+            return value.bind(instance);
+        }
+        return value;
+    }
+});
