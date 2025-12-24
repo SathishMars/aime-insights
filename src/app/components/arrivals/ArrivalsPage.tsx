@@ -23,8 +23,8 @@ export default function ArrivalsPage() {
   const [fetchStatus, setFetchStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [showAll, setShowAll] = useState(false);
 
-  const displayedRows = showAll ? rows : rows.slice(0, 15);
-  const displayedColumns = showAll ? columns : columns.slice(0, 15);
+  const displayedRows = showAll ? rows : rows.slice(0, 10);
+  const displayedColumns = columns;
 
   async function fetchArrivals(search?: string) {
     setLoading(true);
@@ -105,7 +105,7 @@ export default function ArrivalsPage() {
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="max-w-full">
       {/* Row 1: Back + Actions */}
       <div className="mb-4 flex items-center justify-between pt-4">
         <button
@@ -202,7 +202,7 @@ export default function ArrivalsPage() {
         <span>
           {loading ? "Loading..." : rows.length > 0 ? `Showing ${displayedRows.length} of ${total}` : ""}
         </span>
-        {rows.length > 15 && (
+        {rows.length > 10 && (
           <button
             onClick={() => setShowAll(!showAll)}
             className="text-[#9333ea] font-semibold hover:underline bg-[#f3e8ff] px-2 py-0.5 rounded-full"
@@ -213,9 +213,11 @@ export default function ArrivalsPage() {
       </div>
 
       {/* Table Area */}
-      <div className="flex-1 min-h-0 pb-4 overflow-hidden">
-        <ArrivalsTable rows={displayedRows} columnOrder={displayedColumns} loading={loading} />
-      </div>
+      {rows.length > 0 && (
+        <div className={`pb-4 max-w-full ${showAll ? "h-[600px] overflow-hidden" : ""}`}>
+          <ArrivalsTable rows={displayedRows} columnOrder={displayedColumns} loading={loading} showAll={showAll} />
+        </div>
+      )}
     </div>
   );
 }

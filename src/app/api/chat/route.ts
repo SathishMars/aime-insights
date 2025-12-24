@@ -12,11 +12,14 @@ import { formatResultToAnswer } from "@/lib/sql/format";
 
 import { detectScopeAndCategory, outOfScopeMessage } from "@/lib/nlp/scope";
 import { buildContextSummary, type ChatMsg } from "@/lib/nlp/context";
+import { getMongoDb } from "@/lib/mongo";
+import { upsertConversation, saveMessage } from "@/lib/chatRepo";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const BodySchema = z.object({
+  conversationId: z.string().optional(),
   question: z.string().min(3).max(400),
   history: z.array(z.object({ role: z.enum(["user", "assistant"]), text: z.string() })).optional(),
 });
@@ -43,13 +46,31 @@ export async function POST(req: Request) {
 
   // Active Model Selection
   //const model = anthropic("claude-3-5-haiku-latest");
-  //const model = openai("gpt-4o-mini");
-  const model = groq("llama-3.3-70b-versatile");
+  const model = openai("gpt-4o"); // or "gpt-3.5-turbo"
+  //const model = groq("llama-3.3-70b-versatile");
 
   try {
     const body = BodySchema.parse(await req.json());
     const question = body.question.trim();
     const history = (body.history ?? []) as ChatMsg[];
+    const conversationId = body.conversationId ?? "fallback-session";
+
+    // 0) MongoDB Logging Start
+    let db: any = null;
+    try {
+      db = await getMongoDb();
+      await upsertConversation(db, {
+        conversationId,
+        title: "Aime Insights Chat",
+      });
+      await saveMessage(db, {
+        conversationId,
+        role: "user",
+        content: question,
+      });
+    } catch (mongoErr) {
+      console.error("[Chat API] MongoDB pre-log failed:", mongoErr);
+    }
 
     // 1) Fast scope detection (no LLM) — ensures graceful out-of-scope
     const scope = detectScopeAndCategory(question);
@@ -160,6 +181,19 @@ Tone & Style:
       system: answerSystem,
       prompt: `Question: ${question}\nSQL Query: ${sql}\nData Result: ${JSON.stringify(rows)}\n\nPlease provide a natural language answer.`,
     });
+    // 4) MongoDB Log Answer
+    if (db) {
+      try {
+        await saveMessage(db, {
+          conversationId,
+          role: "assistant",
+          content: answerResult.text,
+          meta: { sql, rowCount: rows?.length || 0 },
+        });
+      } catch (mongoErr) {
+        console.error("[Chat API] MongoDB post-log failed:", mongoErr);
+      }
+    }
 
     return NextResponse.json({
       ok: true,

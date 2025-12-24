@@ -1,4 +1,7 @@
+// aime-insights/src/app/api/graphql/schema.ts
+
 import { arrivalsRows, attendeeColumns } from "@/lib/data";
+import { upsertConversation, saveMessage } from "@/lib/chatRepo";
 
 export const typeDefs = /* GraphQL */ `
   type Attendee {
@@ -35,9 +38,17 @@ export const typeDefs = /* GraphQL */ `
     offset: Int!
   }
 
+  type ChatResponse {
+    answer: String!
+  }
+
   type Query {
     arrivals(q: String, limit: Int = 50, offset: Int = 0): ArrivalsResult!
     arrivalColumns: [String!]!
+  }
+
+  type Mutation {
+    chat(conversationId: String!, text: String!): ChatResponse!
   }
 `;
 
@@ -54,6 +65,7 @@ export const resolvers = {
           FROM information_schema.columns
           WHERE table_schema = 'public'
             AND table_name = 'attendee'
+            AND column_name <> 'id'
           ORDER BY ordinal_position;
         `;
         const { rows } = await pool.query(sql);
@@ -66,7 +78,8 @@ export const resolvers = {
 
     arrivals: async (_: unknown, args: { q?: string; limit?: number; offset?: number }) => {
       console.log("[GraphQL] arrivals resolver called with args:", args);
-      console.time('arrivals-resolver');
+      console.time("arrivals-resolver");
+
       const q = (args.q || "").trim().toLowerCase();
       const limit = Math.max(1, Math.min(args.limit ?? 50, 200));
       const offset = Math.max(0, args.offset ?? 0);
@@ -100,7 +113,13 @@ export const resolvers = {
           LIMIT $${q ? 2 : 1}
           OFFSET $${q ? 3 : 2};
         `;
-        console.log("[GraphQL] Executing data query:", dataSql.replace(/\n\s+/g, ' '), "with params:", params);
+
+        console.log(
+          "[GraphQL] Executing data query:",
+          dataSql.replace(/\n\s+/g, " "),
+          "with params:",
+          params
+        );
 
         const countSql = `
           SELECT COUNT(*)::int AS total
@@ -113,9 +132,11 @@ export const resolvers = {
           pool.query(countSql, q ? [`%${q}%`] : []),
         ]);
 
-        console.timeEnd('arrivals-resolver');
-        console.log(`[GraphQL] DB fetch success. Rows: ${dataRes.rows.length}, Total: ${countRes.rows?.[0]?.total}`);
-        console.timeEnd('arrivals-resolver');
+        console.timeEnd("arrivals-resolver");
+        console.log(
+          `[GraphQL] DB fetch success. Rows: ${dataRes.rows.length}, Total: ${countRes.rows?.[0]?.total}`
+        );
+
         return {
           rows: dataRes.rows,
           total: countRes.rows?.[0]?.total ?? 0,
@@ -127,7 +148,7 @@ export const resolvers = {
         console.log("[GraphQL] Falling back to mock data...");
 
         // Mock filtering logic for the fallback
-        let filtered = arrivalsRows.map(r => {
+        let filtered = arrivalsRows.map((r) => {
           const row: Record<string, string | null> = {};
           // Normalize keys to match GraphQL schema (snake_case)
           row.first_name = (r as any)["First Name"];
@@ -158,17 +179,21 @@ export const resolvers = {
         });
 
         if (q) {
-          filtered = filtered.filter(row =>
-            (row.first_name?.toLowerCase().includes(q)) ||
-            (row.last_name?.toLowerCase().includes(q)) ||
-            (row.email?.toLowerCase().includes(q)) ||
-            (row.company_name?.toLowerCase().includes(q))
+          filtered = filtered.filter(
+            (row) =>
+              row.first_name?.toLowerCase().includes(q) ||
+              row.last_name?.toLowerCase().includes(q) ||
+              row.email?.toLowerCase().includes(q) ||
+              row.company_name?.toLowerCase().includes(q)
           );
         }
 
-        console.timeEnd('arrivals-resolver');
-        console.log(`[GraphQL] Fallback success. Filtered rows: ${filtered.length}, Returning: ${filtered.slice(offset, offset + limit).length}`);
-        console.timeEnd('arrivals-resolver');
+        console.timeEnd("arrivals-resolver");
+        console.log(
+          `[GraphQL] Fallback success. Filtered rows: ${filtered.length}, Returning: ${filtered.slice(offset, offset + limit).length
+          }`
+        );
+
         return {
           rows: filtered.slice(offset, offset + limit),
           total: filtered.length,
@@ -176,6 +201,50 @@ export const resolvers = {
           offset,
         };
       }
+    },
+  },
+
+  Mutation: {
+    chat: async (_: unknown, args: { conversationId: string; text: string }, ctx: any) => {
+      const { conversationId, text } = args;
+
+      const db = ctx?.mongo;
+      if (!db) {
+        // This means route.ts context isn't passing mongo yet
+        throw new Error("MongoDB not available in context. Ensure route.ts sets ctx.mongo.");
+      }
+
+      const userId = ctx?.user?.id ?? null;
+
+      // 1) Upsert conversation record
+      await upsertConversation(db, {
+        conversationId,
+        userId,
+        title: "Aime Insights Chat",
+      });
+
+      // 2) Save user message
+      await saveMessage(db, {
+        conversationId,
+        userId,
+        role: "user",
+        content: text,
+      });
+
+      // 3) Generate answer (POC placeholder — replace with your Text-to-SQL agent later)
+      const answer =
+        "Thanks — your message has been logged successfully. (Next: connect this mutation to the Text-to-SQL agent pipeline.)";
+
+      // 4) Save assistant message
+      await saveMessage(db, {
+        conversationId,
+        userId,
+        role: "assistant",
+        content: answer,
+        meta: { poc: true },
+      });
+
+      return { answer };
     },
   },
 };

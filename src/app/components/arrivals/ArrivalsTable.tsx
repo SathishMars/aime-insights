@@ -4,9 +4,10 @@ type ArrivalsTableProps = {
   rows: Record<string, any>[];
   columnOrder: string[];
   loading: boolean;
+  showAll: boolean;
 };
 
-export default function ArrivalsTable({ rows, columnOrder, loading }: ArrivalsTableProps) {
+export default function ArrivalsTable({ rows, columnOrder, loading, showAll }: ArrivalsTableProps) {
   if (loading) {
     return <div className="p-4 text-sm text-gray-500">Loading table data...</div>;
   }
@@ -22,9 +23,9 @@ export default function ArrivalsTable({ rows, columnOrder, loading }: ArrivalsTa
   const displayedRows = rows;
 
   return (
-    <div className="flex flex-col gap-4 h-full">
-      <div className="overflow-hidden rounded-2xl border border-[#e5e7eb] bg-white flex-1 min-h-0">
-        <div className="overflow-auto h-full">
+    <div className="flex flex-col gap-4">
+      <div className={`overflow-hidden rounded-2xl border border-[#e5e7eb] bg-white max-w-full ${showAll ? "h-full" : ""}`}>
+        <div className={`overflow-x-auto w-full ${showAll ? "overflow-y-auto h-full" : ""}`}>
           <table className="w-full border-collapse">
             <thead className="bg-[#f3f4f6] sticky top-0 z-10">
               <tr className="text-left text-[12px] text-[#111827]">

@@ -6,6 +6,8 @@ import { useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 type Msg = { id: string; role: "assistant" | "user"; text: string; ts: string; sql?: string; data?: any[] };
 
@@ -37,12 +39,36 @@ export function AimePanel() {
     setTimeout(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
   }
 
-  function handleExport(data: any[], format: "xlsx", filename = "aime-export") {
-    if (format === "xlsx") {
+  function handleExport(data: any[], format: "xlsx" | "csv" | "pdf", filename = "aime-export") {
+    if (format === "xlsx" || format === "csv") {
       const ws = XLSX.utils.json_to_sheet(data);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Data");
-      XLSX.writeFile(wb, `${filename}.xlsx`);
+      if (format === "xlsx") {
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Data");
+        XLSX.writeFile(wb, `${filename}.xlsx`);
+      } else {
+        const csv = XLSX.utils.sheet_to_csv(ws);
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", `${filename}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } else if (format === "pdf") {
+      const doc = new jsPDF();
+      const headers = Object.keys(data[0]);
+      const rows = data.map(item => headers.map(header => item[header]));
+
+      autoTable(doc, {
+        head: [headers.map(h => h.replace(/_/g, " ").toUpperCase())],
+        body: rows,
+        theme: "striped",
+        headStyles: { fillColor: [124, 58, 237] }, // #7c3aed
+        styles: { fontSize: 8 },
+      });
+      doc.save(`${filename}.pdf`);
     }
   }
 
@@ -79,7 +105,7 @@ export function AimePanel() {
       setIsTyping(false);
     }
   }
-
+  
   if (!aimeOpen) {
     return (
       <>
@@ -180,6 +206,27 @@ export function AimePanel() {
                       >
                         <span className="text-[#10b981]">⬇</span> Excel
                       </button>
+                      <button
+                        onClick={() => handleExport(m.data!, "csv")}
+                        className="flex items-center gap-1.5 rounded-lg border border-[#e5e7eb] bg-white px-2.5 py-1.5 text-[10px] font-medium text-[#374151] hover:bg-gray-50 transition-colors"
+                      >
+                        <span className="text-[#3b82f6]">⬇</span> CSV
+                      </button>
+                      <button
+                        onClick={() => handleExport(m.data!, "pdf")}
+                        className="flex items-center gap-1.5 rounded-lg border border-[#e5e7eb] bg-white px-2.5 py-1.5 text-[10px] font-medium text-[#374151] hover:bg-gray-50 transition-colors"
+                      >
+                        <span className="text-[#ef4444]">⬇</span> PDF
+                      </button>
+                    </div>
+                  )}
+
+                  {m.sql && (
+                    <div className="mt-2 rounded bg-black/5 p-1.5 font-mono text-[9px] text-[#4b5563]">
+                      <details>
+                        <summary className="cursor-pointer font-sans text-[10px] font-medium hover:underline">View SQL Query</summary>
+                        <div className="mt-1 whitespace-pre-wrap rounded bg-white/50 p-1 border border-black/5 line-clamp-3">{m.sql}</div>
+                      </details>
                     </div>
                   )}
                 </div>
